@@ -10,26 +10,28 @@ class UnsplashProvider {
   LightSearchPhotoResult _searchResult;
   String query = '';
   int _currPage;
+  Future<void> _fut;
 
   UnsplashProvider(this._data, {this.query}) {
     _photos = [];
     _currPage = 1;
     if (query.isEmpty)
-      getLightPhotos(clientId: _data.accessKey).then(
+      _fut = getLightPhotos(clientId: _data.accessKey).then(
         (photos) {
           _photos.addAll(photos);
         },
       );
     else
-      querySearch(query);
+      _fut = querySearch(query);
   }
 
-  void querySearch(String query) {
-    if (this.query == query) return;
+  Future<void> querySearch(String query) {
+    if (this.query == query) return Future<void>(null);
     this.query = query;
     _photos = [];
     _currPage = 1;
-    lightSearchResult(clientId: _data.accessKey, query: query, page: _currPage)
+    return lightSearchResult(
+            clientId: _data.accessKey, query: query, page: _currPage++)
         .then(
       (result) {
         _searchResult = result;
@@ -40,26 +42,28 @@ class UnsplashProvider {
   LightPhoto getPhoto(int i) {
     List<LightPhoto> photos = _searchResult?.results ?? _photos;
     if (photos.length - i < 10) {
-      _reload();
+      _fut = _reload();
     }
     return photos[i];
   }
 
-  void _reload() {
-    if (query.isEmpty) {
-      getLightPhotos(clientId: _data.accessKey, page: _currPage++).then(
+  Future<void> get state => _fut;
+
+  Future<void> _reload() {
+    if (query.isEmpty)
+      return getLightPhotos(clientId: _data.accessKey, page: _currPage++).then(
         (photos) {
           _photos.addAll(photos);
         },
       );
-    } else {
-      lightSearchResult(
+    else if (_currPage < _searchResult.totalPages)
+      return lightSearchResult(
               clientId: _data.accessKey, query: query, page: _currPage++)
           .then(
         (result) {
           _photos.addAll(result.results);
         },
       );
-    }
+    return Future<void>(null);
   }
 }
