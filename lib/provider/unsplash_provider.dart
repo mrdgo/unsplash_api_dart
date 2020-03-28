@@ -1,11 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:unsplash_api_dart/http.dart';
 import 'package:unsplash_api_dart/models/light_photo.dart';
 import 'package:unsplash_api_dart/models/light_search_photo_result.dart';
 import 'package:unsplash_api_dart/unsplash_api_dart.dart';
 
 /// Provide lazily loaded infinitely many photos
-class UnsplashProvider with ChangeNotifier {
+class UnsplashProvider {
   final Unsplash _data;
   List<LightPhoto> _photos;
   LightSearchPhotoResult _searchResult;
@@ -19,7 +18,6 @@ class UnsplashProvider with ChangeNotifier {
       getLightPhotos(clientId: _data.accessKey).then(
         (photos) {
           _photos.addAll(photos);
-          notifyListeners();
         },
       );
     else
@@ -35,7 +33,6 @@ class UnsplashProvider with ChangeNotifier {
         .then(
       (result) {
         _searchResult = result;
-        notifyListeners();
       },
     );
   }
@@ -53,8 +50,6 @@ class UnsplashProvider with ChangeNotifier {
       getLightPhotos(clientId: _data.accessKey, page: _currPage++).then(
         (photos) {
           _photos.addAll(photos);
-          // TODO: find out whether this one is required
-          notifyListeners();
         },
       );
     } else {
@@ -63,8 +58,6 @@ class UnsplashProvider with ChangeNotifier {
           .then(
         (result) {
           _photos.addAll(result.results);
-          // required?
-          notifyListeners();
         },
       );
     }
