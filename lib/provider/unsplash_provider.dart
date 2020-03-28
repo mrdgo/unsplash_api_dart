@@ -12,17 +12,14 @@ class UnsplashProvider {
   int _currPage;
   Future<void> _fut;
 
-  UnsplashProvider(this._data, {this.query}) {
+  UnsplashProvider(this._data) {
     _photos = [];
     _currPage = 1;
-    if (query.isEmpty)
-      _fut = getLightPhotos(clientId: _data.accessKey).then(
-        (photos) {
-          _photos.addAll(photos);
-        },
-      );
-    else
-      _fut = querySearch(query);
+    _fut = getLightPhotos(clientId: _data.accessKey).then(
+      (photos) {
+        _photos.addAll(photos);
+      },
+    );
   }
 
   Future<void> querySearch(String query) {
